@@ -4,7 +4,6 @@
 #######################
 
 from scipy.misc import imread
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -134,23 +133,13 @@ def print_cent(cent):
                                                                  ']').replace(
             ' ', ', ')[1:-1]
 
-
-def plot(loss, k):
-    plt.plot(range(len(loss)), loss)
-    plt.title('Average loss after 10 iterations for k = %d' % k)
-    plt.ylabel('Loss')
-    plt.xlabel('Iterations')
-    plt.savefig('graph')
-    plt.clf()
-
-
 # the algorithm.
 def k_means(k):
     x = load()
     centroids = init_centroids(x, k)
     total_loss = []
     print('k=%d:' % k)
-    # do 10 iterations of the algorithm.
+    # do 11 iterations of the algorithm, from 0 to 10.
     for count in range(11):
         print('iter %d: %s' % (count, print_cent(centroids)))
         clusters = {key: [] for key in range(k)}
@@ -167,7 +156,6 @@ def k_means(k):
         loss /= len(x)
         loss = np.floor(loss * 10000) / 10000
         total_loss.append(loss)
-    plot(total_loss, k)
 
 
 if __name__ == '__main__':
