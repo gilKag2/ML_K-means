@@ -1,5 +1,4 @@
 from scipy.misc import imread
-from init_centroids import init_centroids
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -144,13 +143,13 @@ def k_means(k):
 
             clusters[idx] += [point]
 
-    # update the centroids location according to the mean value.
-    update(centroids, clusters)
-    loss = 0
-    # calculate the loss (sum of the distanced from each point to its assign centroid)
-    for i in range(k):
-        loss += calc_loss(centroids[i], clusters[i])
-    loss /= len(x)
+        # update the centroids location according to the mean value.
+        update(centroids, clusters)
+        loss = 0
+        # calculate the loss (sum of the distanced from each point to its assign centroid)
+        for i in range(k):
+            loss += calc_loss(centroids[i], clusters[i])
+        loss /= len(x)
     # plot(loss, k)
 
 
