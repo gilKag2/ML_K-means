@@ -1,8 +1,14 @@
+######################
+# Gil Kagan
+# 315233221
+#######################
+
 from scipy.misc import imread
 import matplotlib.pyplot as plt
 import numpy as np
 
 
+# initiate the centroids.
 def init_centroids(X, K):
     """
     Initializes K centroids that are to be used in K-Means on the dataset X.
@@ -57,6 +63,7 @@ def init_centroids(X, K):
         return None
 
 
+# loads the image.
 def load():
     # data preperation (loading, normalizing, reshaping)
     path = 'dog.jpeg'
@@ -67,6 +74,8 @@ def load():
     return X
 
 
+# calculates the average position for the new centroid,
+# in the x, y and z axes.
 def calc_avg_location(points):
     avg_x = 0
     avg_y = 0
@@ -83,9 +92,10 @@ def calc_avg_location(points):
     return [avg_x, avg_y, avg_z]
 
 
-def update(centroids, points):
+# update the centroids positions to be the the average of the points in the cluster.
+def update(centroids, cluster):
     for i in range(len(centroids)):
-        centroids[i] = calc_avg_location(points[i])
+        centroids[i] = calc_avg_location(cluster[i])
     return centroids
 
 
@@ -94,24 +104,20 @@ def calc_dist(point1, point2):
     return np.linalg.norm(point1 - point2) ** 2
 
 
-def find_closest_centroid_idx(point, centroids):
-    closest = 0
+# find closest centroid to the point. returns array of 2 results:
+# the index of the centroid, and the distance.
+def find_closest_centroid_idx_and_distance(point, centroids):
+    closest_idx = 0
     counter = 0
     curr_min_dist = 1000
     for i in centroids:
         dist = calc_dist(point, i)
         if dist < curr_min_dist:
-            closest = counter
+            closest_idx = counter
             curr_min_dist = dist
         counter += 1
-    return closest
-
-
-def calc_loss(centroid, points):
-    loss = 0
-    for point in points:
-        loss += calc_dist(point, centroid)
-    return loss
+    # returns the index and the distance in an array.
+    return [closest_idx, curr_min_dist]
 
 
 def print_cent(cent):
@@ -129,28 +135,39 @@ def print_cent(cent):
             ' ', ', ')[1:-1]
 
 
+def plot(loss, k):
+    plt.plot(range(len(loss)), loss)
+    plt.title('Average loss after 10 iterations for k = %d' % k)
+    plt.ylabel('Loss')
+    plt.xlabel('Iterations')
+    plt.savefig('graph')
+    plt.clf()
+
+
+# the algorithm.
 def k_means(k):
     x = load()
     centroids = init_centroids(x, k)
-    print('k=%d' % k)
+    total_loss = []
+    print('k=%d:' % k)
     # do 10 iterations of the algorithm.
     for count in range(11):
         print('iter %d: %s' % (count, print_cent(centroids)))
         clusters = {key: [] for key in range(k)}
+        loss = 0
         for point in x:
-            idx = find_closest_centroid_idx(point, centroids)
+            # holds the index in the first pos, and distance in the second.
+            index_and_dist = find_closest_centroid_idx_and_distance(point, centroids)
             # add the point to the cluster group of the closest centroid.
-
-            clusters[idx] += [point]
-
+            clusters[index_and_dist[0]] += [point]
+            loss += index_and_dist[1]
         # update the centroids location according to the mean value.
         update(centroids, clusters)
-        loss = 0
-        # calculate the loss (sum of the distanced from each point to its assign centroid)
-        for i in range(k):
-            loss += calc_loss(centroids[i], clusters[i])
+        # get average of the loss
         loss /= len(x)
-    # plot(loss, k)
+        loss = np.floor(loss * 10000) / 10000
+        total_loss.append(loss)
+    plot(total_loss, k)
 
 
 if __name__ == '__main__':
